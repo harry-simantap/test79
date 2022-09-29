@@ -1,0 +1,84 @@
+﻿@model Transaction
+
+@{
+    ViewData["Title"] = "Create Transaction";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card card-dark">
+            <div class="card-header">
+                <h4 class="card-title">@ViewData["Title"]</h4>
+            </div>
+            <div class="card-body">
+                <div class="col-sm-12">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger text-sm"></div>
+                        <div class="form-group row">
+                            <label asp-for="TransactionDate" class="col-sm-2 text-sm"></label>
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <input asp-for="TransactionDate" type="text" class="form-control form-control-sm tanggal">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <span asp-validation-for="TransactionDate" class="text-sm text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="CustomerId" class="col-sm-2 text-sm"></label>
+                            <div class="col-sm-5">
+                                <select asp-for="CustomerId" asp-items="ViewBag.Customer" class="form-control form-control-sm select2" style="width: 100%">
+                                    <option value="">Select Customer</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-5">
+                                <span asp-validation-for="CustomerId" class="text-sm text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="Description" class="col-sm-2 text-sm"></label>
+                            <div class="col-sm-5">
+                                <select asp-for="Description" class="form-control form-control-sm select2" style="width: 100%">
+                                    <option value="Bayar Listrik">Bayar Listrik</option>
+                                    <option value="Beli Pulsa">Beli Pulsa</option>
+                                    <option value="Setor Tunai">Setor Tunai</option>
+                                    <option value="Tarik Tunai">Tarik Tunai</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-5">
+                                <span asp-validation-for="Description" class="text-sm text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="DebitCreditStatus" class="col-sm-2 text-sm"></label>
+                            <div class="col-sm-5">
+                                <select asp-for="DebitCreditStatus" class="form-control form-control-sm select2" style="width: 100%">
+                                    <option value="C">Credit</option>
+                                    <option value="D">Debit</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-5">
+                                <span asp-validation-for="DebitCreditStatus" class="text-sm text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label asp-for="Amount" class="col-sm-2 text-sm"></label>
+                            <div class="col-sm-5">
+                                <input asp-for="Amount" class="form-control form-control-sm text-right format-number" />
+                            </div>
+                            <div class="col-sm-5">
+                                <span asp-validation-for="Amount" class="text-sm text-danger"></span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="fa fa-check mr-2"></i>Create</button>
+                        <a asp-controller="Transaction" asp-action="Index" class="btn btn-sm btn-secondary"><i class="fa fa-times mr-2"></i>Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = "Report";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card card-dark">
+            <div class="card-header">
+                <h4 class="card-title">
+                    @ViewData["Title"]
+                </h4>
+            </div>
+            <div class="card-body">
+                <!--TOP ACTION-->
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <div class="form-group form-group-sm">
+                            <label class="text-sm">Start Date</label>
+                            <div class="input-group">
+                                <input id="StartDate" type="text" class="form-control form-control-sm tanggal">
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group form-group-sm">
+                            <label class="text-sm">End Date</label>
+                            <div class="input-group">
+                                <input id="EndDate" type="text" class="form-control form-control-sm tanggal">
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="control-label">Customer</label>
+                                <select asp-items="ViewBag.Customer" class="form-control form-control-sm select2 customer" style="width: 100%">
+                                    <option value="">All Customer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="control-label">&nbsp;</label>
+                                <button type="button" class="btn btn-sm btn-primary col-sm-12 btn-search" onclick="Display()"><i class="fa fa-search mr-2"></i>DISPLAY</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--TOP ACTION-->
+                <hr />
+                <div class="table-responsive table-responsive-sm">
+                    <table class="table table-sm table-bordered" id="dtLaporan">
+                        <thead>
+                            <tr>
+                                <th>Transaction Date</th>
+                                <th data-orderable="false">Customer</th>
+                                <th data-orderable="false">Description</th>
+                                <th data-orderable="false">Credit</th>
+                                <th data-orderable="false">Debit</th>
+                                <th data-orderable="false">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+<script type="text/javascript">
+    var reportTable = $('#dtLaporan').DataTable({
+        "paging": false,
+        "lengthChange": true,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "searching": true,
+        "ordering": true,
+        "info": true,
+        "autoWidth": false,
+        "order": [[0, "asc"]],
+        "dom": "<'row'<'col-sm-3'l><'col-sm-6 text-center'B><'col-sm-3'f>>"
+            + "<'row'<'col-sm-12'tr>>"
+            + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+        "buttons": [
+            {
+                "extend": 'excelHtml5',
+                "text": '<i class="fa fa-file-excel mr-2"></i>Export to Excel',
+                "titleAttr": 'Excel',
+                "className": 'btn-sm btn-success'
+            },
+            {
+                "extend": 'pdfHtml5',
+                "text": '<i class="fa fa-file-pdf mr-2"></i>Export to PDF',
+                "titleAttr": 'PDF',
+                "className": 'btn-sm btn-danger'
+            },
+            {
+                "extend": 'print',
+                "text": '<i class="fa fa-print mr-2"></i>Print Data',
+                "titleAttr": 'Print',
+                "className": 'btn-sm btn-default'
+            }
+        ],
+    });
+
+    function Display() {
+        $('.btn-search').find($('.fa')).removeClass('fa-search').addClass('fa-spinner fa-spin');
+        $('.btn-search').bind('click', false);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetReport", "Transaction")',
+            data: {
+                startDate: $('#StartDate').val(),
+                endDate: $('#EndDate').val(),
+                accountId: $('.customer').val()
+            },
+            success: function (data) {
+                reportTable.clear().draw();
+                $.each(data.list, function (index, row) {
+                    var credit = row.debitCreditStatus == 'C' ? $.number(row.amount) : '-';
+                    var debit = row.debitCreditStatus == 'D' ? $.number(row.amount) : '-';
+                    var node = reportTable.row.add([
+                        $.format.date(row.transactionDate, 'yyyy/MM/dd'),
+                        row.customer.name,
+                        row.description,
+                        credit,
+                        debit,
+                        $.number(row.amount)
+                    ]).draw().node();
+                    $(node).find('td').eq(3).addClass('text-right');
+                    $(node).find('td').eq(4).addClass('text-right');
+                    $(node).find('td').eq(5).addClass('text-right');
+                });
+                $('.btn-search').find($('.fa')).removeClass('fa-spinner fa-spin').addClass('fa-search');
+                $('.btn-search').unbind('click', false);
+            }, //end success
+            error: function (result) {
+                bootbox.alert("Error " + result);
+            } //end error
+        }); //end ajax
+    }
+
+    $(document).ready(function () {
+
+    });
+</script>
